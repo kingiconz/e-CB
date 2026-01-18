@@ -215,7 +215,7 @@ export default function StaffDashboard() {
             {/* Header */}
             <div className="mb-6 sm:mb-8">
               <h1 className="text-xl sm:text-2xl font-semibold text-gray-900">This Week's Menu</h1>
-              <p className="text-gray-600 text-xs sm:text-sm mt-1">Week of {new Date(activeMenu.week_start).toLocaleDateString({"'en-US'"}, { month: {"'short'"}, day: {"'numeric'"} })}</p>
+              <p className="text-gray-600 text-xs sm:text-sm mt-1">{`Week of ${new Date(activeMenu.week_start).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`}</p>
             </div>
 
             {/* Days Grid */}

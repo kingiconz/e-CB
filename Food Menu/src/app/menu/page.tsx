@@ -108,7 +108,7 @@ export default function MenuPage() {
           <div className="flex-1">
             <h1 className="text-xl sm:text-2xl font-semibold text-gray-900">This Week's Menu</h1>
             <p className="text-gray-600 text-xs sm:text-sm mt-1">
-              Week of {new Date(menu.week_start).toLocaleDateString({"'en-US'"}, { month: {"'short'"}, day: {"'numeric'"} })}
+              {`Week of ${new Date(menu.week_start).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`}
             </p>
           </div>
           <button

@@ -115,7 +115,7 @@ export default function SelectionsPage() {
         ) : staffData.length === 0 ? (
           <div className="bg-gray-50 border border-gray-200 rounded-lg p-8 text-center">
             <p className="text-gray-700 font-medium">No selections found</p>
-            <p className="text-gray-600 text-sm mt-1">Staff members haven{"'"}t made any selections yet</p>
+            <p className="text-gray-600 text-sm mt-1">{`Staff members haven't made any selections yet`}</p>
           </div>
         ) : (
           <div>
