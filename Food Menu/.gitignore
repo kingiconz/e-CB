@@ -1,0 +1,10 @@
+# dependencies
+/node_modules
+
+# build
+/.next/
+/out/
+
+# local
+.env.local
+/src/generated/prisma
