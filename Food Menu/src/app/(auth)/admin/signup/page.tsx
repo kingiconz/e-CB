@@ -130,7 +130,7 @@ export default function AdminSignupPage() {
         <div className="text-center text-xs sm:text-sm text-gray-600">
           <p>
             Already have an admin account?{' '}
-            <Link href=&quot;/admin/login&quot; className=&quot;font-semibold text-blue-600 hover:text-blue-700&quot;>
+            <Link href="/admin/login" className="font-semibold text-blue-600 hover:text-blue-700">
               Login here
             </Link>
           </p>

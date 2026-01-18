@@ -110,9 +110,9 @@ export default function SignupPage() {
         {message && (
           <p
             className={`mt-3 sm:mt-4 text-xs sm:text-sm text-center p-2 sm:p-3 rounded-md ${
-              message.includes(&quot;successful&quot;)
-                ? &quot;text-green-800 bg-green-50 border border-green-200&quot;
-                : &quot;text-red-800 bg-red-50 border border-red-200&quot;
+              message.includes('successful')
+                ? 'text-green-800 bg-green-50 border border-green-200'
+                : 'text-red-800 bg-red-50 border border-red-200'
             }`}
           >
             {message}
