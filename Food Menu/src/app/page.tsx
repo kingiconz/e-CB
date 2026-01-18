@@ -62,7 +62,7 @@ export default function Home() {
                 href="/menu"
                 className="bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold py-2 sm:py-3 px-4 sm:px-6 rounded-md text-sm md:text-base w-full sm:w-auto text-center"
               >
-                View This Week's Menu
+                View This Week{"'"}s Menu
               </Link>
             </div>
             <div className="mt-8 md:mt-12 flex justify-center lg:justify-start gap-4 sm:gap-6 md:gap-8 text-gray-800 flex-wrap">

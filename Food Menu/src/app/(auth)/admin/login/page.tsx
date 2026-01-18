@@ -142,7 +142,7 @@ export default function AdminLoginPage() {
         )}
         <div className="text-xs sm:text-sm text-center text-gray-600">
           <p>
-            Don&apos;t have an admin account?{' '}
+            Don{"'"}t have an admin account?{' '}
             <Link href="/admin/signup" className="font-semibold text-blue-600 hover:text-blue-700">
               Create one
             </Link>

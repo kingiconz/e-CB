@@ -121,7 +121,7 @@ export default function AdminDashboard() {
         ) : menus.length === 0 ? (
           <div className="bg-gray-50 rounded-lg border border-gray-200 p-12 text-center">
             <p className="text-gray-700 font-medium">No menus yet</p>
-            <p className="text-gray-600 text-sm mt-1">Click "New Menu" to create your first menu</p>
+            <p className="text-gray-600 text-sm mt-1">Click {"\"New Menu\""} to create your first menu</p>
           </div>
         ) : (
           <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">

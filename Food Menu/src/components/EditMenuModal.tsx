@@ -24,6 +24,7 @@ export default function EditMenuModal({ menu, onClose, onSave }) {
       }
       fetchFoodItems();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [menu]);
 
   const fetchFoodItems = async () => {
