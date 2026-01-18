@@ -188,7 +188,7 @@ export default function EditMenuPage({ params }: EditMenuPageProps) {
                 id="description"
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
-                rows="2"
+                rows={2}
                 placeholder="e.g., Fresh greens with grilled chicken breast and balsamic vinaigrette"
                 className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-orange-500 focus:border-orange-500"
               ></textarea>
@@ -201,7 +201,7 @@ export default function EditMenuPage({ params }: EditMenuPageProps) {
                 id="dessert-description"
                 value={dessertDescription}
                 onChange={(e) => setDessertDescription(e.target.value)}
-                rows="2"
+                rows={2}
                 placeholder="e.g., Rich chocolate cake with chocolate ganache"
                 className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-purple-500 focus:border-purple-500"
               ></textarea>
