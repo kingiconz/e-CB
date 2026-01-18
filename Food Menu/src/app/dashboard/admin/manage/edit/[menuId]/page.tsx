@@ -1,17 +1,37 @@
 "use client";
 
-import { useState } from 'react';
+import { Dispatch, SetStateAction, useState } from 'react';
 import NavHeader from '@/components/NavHeader';
 
-export default function EditMenuPage({ params }) {
-  const [foodItems, setFoodItems] = useState([]);
-  const [desserts, setDesserts] = useState([]);
-  const [day, setDay] = useState('Monday');
-  const [foodName, setFoodName] = useState('');
-  const [description, setDescription] = useState('');
-  const [dessertName, setDessertName] = useState('');
-  const [dessertDescription, setDessertDescription] = useState('');
-  const [isActive, setIsActive] = useState(true);
+interface EditMenuPageProps {
+  params: {
+    menuId: string;
+  };
+}
+
+interface FoodItem {
+  id: number;
+  day: string;
+  name: string;
+  description: string;
+}
+
+interface DessertItem {
+  id: number;
+  day: string;
+  name: string;
+  description: string;
+}
+
+export default function EditMenuPage({ params }: EditMenuPageProps) {
+  const [foodItems, setFoodItems] = useState<FoodItem[]>([]);
+  const [desserts, setDesserts] = useState<DessertItem[]>([]);
+  const [day, setDay] = useState<string>('Monday');
+  const [foodName, setFoodName] = useState<string>('');
+  const [description, setDescription] = useState<string>('');
+  const [dessertName, setDessertName] = useState<string>('');
+  const [dessertDescription, setDessertDescription] = useState<string>('');
+  const [isActive, setIsActive] = useState<boolean>(true);
 
   const handleAddFoodItem = () => {
     if (!foodName) {
@@ -19,7 +39,7 @@ export default function EditMenuPage({ params }) {
       return;
     }
 
-    const newFoodItem = {
+    const newFoodItem: FoodItem = {
       id: Date.now(),
       day,
       name: foodName,
@@ -37,7 +57,7 @@ export default function EditMenuPage({ params }) {
       return;
     }
 
-    const newDessert = {
+    const newDessert: DessertItem = {
       id: Date.now(),
       day,
       name: dessertName,
@@ -49,15 +69,15 @@ export default function EditMenuPage({ params }) {
     setDessertDescription('');
   };
 
-  const handleDeleteFoodItem = (id) => {
+  const handleDeleteFoodItem = (id: number) => {
     setFoodItems(foodItems.filter((item) => item.id !== id));
   };
 
-  const handleDeleteDessert = (id) => {
+  const handleDeleteDessert = (id: number) => {
     setDesserts(desserts.filter((item) => item.id !== id));
   };
 
-  const groupedFoodItems = foodItems.reduce((acc, item) => {
+  const groupedFoodItems = foodItems.reduce((acc: Record<string, FoodItem[]>, item) => {
     const day = item.day;
     if (!acc[day]) {
       acc[day] = [];
@@ -66,7 +86,7 @@ export default function EditMenuPage({ params }) {
     return acc;
   }, {});
 
-  const groupedDesserts = desserts.reduce((acc, item) => {
+  const groupedDesserts = desserts.reduce((acc: Record<string, DessertItem[]>, item) => {
     const day = item.day;
     if (!acc[day]) {
       acc[day] = [];

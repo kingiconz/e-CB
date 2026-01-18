@@ -1,18 +1,42 @@
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Dispatch, SetStateAction } from 'react';
 
-export default function EditMenuModal({ menu, onClose, onSave }) {
-  const [foodItems, setFoodItems] = useState([]);
-  const [desserts, setDesserts] = useState([]);
-  const [day, setDay] = useState('Monday');
-  const [foodName, setFoodName] = useState('');
-  const [description, setDescription] = useState('');
-  const [dessertName, setDessertName] = useState('');
-  const [dessertDescription, setDessertDescription] = useState('');
-  const [isActive, setIsActive] = useState(true);
-  const [isLoading, setIsLoading] = useState(false);
-  const [message, setMessage] = useState('');
+interface EditMenuModalProps {
+  menu: {
+    id: string;
+    is_active?: boolean;
+    isActive?: boolean;
+  };
+  onClose: () => void;
+  onSave: (data: any) => void;
+}
+
+interface FoodItem {
+  id: number;
+  day: string;
+  name: string;
+  description: string;
+}
+
+interface DessertItem {
+  id: number;
+  day: string;
+  name: string;
+  description: string;
+}
+
+export default function EditMenuModal({ menu, onClose, onSave }: EditMenuModalProps) {
+  const [foodItems, setFoodItems] = useState<FoodItem[]>([]);
+  const [desserts, setDesserts] = useState<DessertItem[]>([]);
+  const [day, setDay] = useState<string>('Monday');
+  const [foodName, setFoodName] = useState<string>('');
+  const [description, setDescription] = useState<string>('');
+  const [dessertName, setDessertName] = useState<string>('');
+  const [dessertDescription, setDessertDescription] = useState<string>('');
+  const [isActive, setIsActive] = useState<boolean>(true);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [message, setMessage] = useState<string>('');
 
   useEffect(() => {
     if (menu) {
@@ -32,7 +56,7 @@ export default function EditMenuModal({ menu, onClose, onSave }) {
       setIsLoading(true);
       const response = await fetch(`/api/menu-items?menuId=${menu.id}`);
       if (response.ok) {
-        const items = await response.json();
+        const items: FoodItem[] = await response.json();
         setFoodItems(items);
       }
     } catch (error) {
@@ -43,7 +67,7 @@ export default function EditMenuModal({ menu, onClose, onSave }) {
   };
 
   const handleAddBoth = async () => {
-    const errors = [];
+    const errors: string[] = [];
     
     if (!foodName) {
       errors.push('Please enter a food name.');
@@ -114,7 +138,7 @@ export default function EditMenuModal({ menu, onClose, onSave }) {
     }
   };
 
-  const handleDeleteFoodItem = async (id) => {
+  const handleDeleteFoodItem = async (id: number) => {
     try {
       const response = await fetch(`/api/menu-items?itemId=${id}`, {
         method: 'DELETE',
@@ -131,7 +155,7 @@ export default function EditMenuModal({ menu, onClose, onSave }) {
     }
   };
 
-  const handleDeleteDessert = async (id) => {
+  const handleDeleteDessert = async (id: number) => {
     try {
       const response = await fetch(`/api/menu-items?itemId=${id}`, {
         method: 'DELETE',
