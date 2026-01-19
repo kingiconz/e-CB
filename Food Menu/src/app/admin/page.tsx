@@ -1,22 +1,24 @@
-'use client';
+/* eslint-disable react/no-unescaped-entities */
 
-import { useAuth } from '@/contexts/AuthContext';
-import { useRouter } from 'next/navigation';
-import { useEffect } from 'react';
+"use client";
+
+import { useAuth } from "@/contexts/AuthContext";
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
 
 export default function AdminRedirectPage() {
-  const { user, loading } = useAuth();
+  const { user, isLoading } = useAuth(); // Corrected `loading` to `isLoading`
   const router = useRouter();
 
   useEffect(() => {
-    if (!loading) {
-      if (user && user.role === 'admin') {
-        router.replace('/dashboard/admin');
+    if (!isLoading) {
+      if (user && user.role === "admin") {
+        router.replace("/dashboard/admin");
       } else {
-        router.replace('/admin/signup');
+        router.replace("/admin/signup");
       }
     }
-  }, [user, loading, router]);
+  }, [user, isLoading, router]);
 
   return (
     <div className="flex justify-center items-center min-h-screen">
