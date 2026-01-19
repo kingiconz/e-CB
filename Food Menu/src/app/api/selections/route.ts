@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server';
 import pool from '@/lib/db';
 
+const daysOfWeek = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
+
 export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
@@ -43,6 +45,8 @@ export async function POST(request: Request) {
   try {
     const { selections, userId, menuId } = await request.json();
 
+    console.log('Received POST request with data:', { selections, userId, menuId });
+
     if (!selections || !userId || !menuId) {
       return NextResponse.json(
         { message: 'selections, userId, and menuId are required' },
@@ -52,39 +56,64 @@ export async function POST(request: Request) {
 
     const client = await pool.connect();
     try {
-      // selections = { Monday: itemId, Tuesday: itemId, ... }
       const insertedSelections: any[] = [];
+
+      const activeMenu = await client.query(
+        'SELECT week_start FROM menus WHERE id = $1',
+        [menuId]
+      );
+
+      if (!activeMenu.rows.length) {
+        throw new Error('Active menu not found');
+      }
+
+      const weekStart = activeMenu.rows[0].week_start;
 
       for (const day in selections) {
         const menuItemId = selections[day];
         if (!menuItemId) continue;
 
-        // Get today's date
         const today = new Date().toISOString().split('T')[0];
+        const selectionDate = new Date(weekStart);
+
+        // Adjust selectionDate based on the day selected
+        const dayOffset = daysOfWeek.indexOf(day);
+        if (dayOffset >= 0) {
+          selectionDate.setDate(selectionDate.getDate() + dayOffset);
+        }
+
+        const formattedDate = selectionDate.toISOString().split('T')[0];
+
+        console.log(`Processing selection: Day - ${day}, MenuItemId - ${menuItemId}, SelectionDate - ${formattedDate}`);
 
         // Check if selection already exists for this user and day
         const existing = await client.query(
-          'SELECT id FROM selections WHERE user_id = $1 AND menu_item_id IN (SELECT id FROM menu_items WHERE menu_id = $2 AND day = $3)',
-          [userId, menuId, day]
+          'SELECT id FROM selections WHERE user_id = $1 AND selection_date = $2',
+          [userId, formattedDate]
         );
 
+        console.log('Existing selection query result:', existing.rows);
+
         if (existing.rows.length > 0) {
-          // Update existing
+          console.log(`Updating existing selection for Day - ${day}, UserId - ${userId}`);
           const result = await client.query(
-            'UPDATE selections SET menu_item_id = $1 WHERE user_id = $2 AND selection_date = $3 AND menu_item_id IN (SELECT id FROM menu_items WHERE day = $4) RETURNING *',
-            [menuItemId, userId, today, day]
+            'UPDATE selections SET menu_item_id = $1 WHERE user_id = $2 AND selection_date = $3 RETURNING *',
+            [menuItemId, userId, formattedDate]
           );
+          console.log('Update query result:', result.rows);
           if (result.rows.length > 0) insertedSelections.push(result.rows[0]);
         } else {
-          // Insert new
+          console.log(`Inserting new selection for Day - ${day}, UserId - ${userId}`);
           const result = await client.query(
             'INSERT INTO selections (user_id, menu_item_id, selection_date) VALUES ($1, $2, $3) RETURNING *',
-            [userId, menuItemId, today]
+            [userId, menuItemId, formattedDate]
           );
+          console.log('Insert query result:', result.rows);
           if (result.rows.length > 0) insertedSelections.push(result.rows[0]);
         }
       }
 
+      console.log('Final inserted selections:', insertedSelections);
       return NextResponse.json(
         { message: 'Selections saved successfully', selections: insertedSelections },
         { status: 201 }

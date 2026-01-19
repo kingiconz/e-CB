@@ -34,23 +34,35 @@ export async function GET(request: Request) {
 
 export async function POST(request: Request) {
   try {
-    const { menu_id, name, description, day } = await request.json();
+    const { menu_id, items } = await request.json();
 
-    if (!menu_id || !name || !day) {
+    if (!menu_id || !items || !Array.isArray(items) || items.length === 0) {
       return NextResponse.json(
-        { message: 'Menu ID, name, and day are required.' },
+        { message: 'Menu ID and items are required, and items must be a non-empty array.' },
         { status: 400 }
       );
     }
 
     const client = await pool.connect();
     try {
-      const result = await client.query(
-        'INSERT INTO menu_items (menu_id, name, description, day) VALUES ($1, $2, $3, $4) RETURNING *',
-        [menu_id, name, description || null, day]
-      );
-      const newItem = result.rows[0];
-      return NextResponse.json(newItem, { status: 201 });
+      const insertedItems = [];
+      for (const item of items) {
+        const { name, description, day } = item;
+        if (!name || !day) {
+          return NextResponse.json(
+            { message: 'Each item must have a name and day.' },
+            { status: 400 }
+          );
+        }
+
+        const result = await client.query(
+          'INSERT INTO menu_items (menu_id, name, description, day) VALUES ($1, $2, $3, $4) RETURNING *',
+          [menu_id, name, description || null, day]
+        );
+        insertedItems.push(result.rows[0]);
+      }
+
+      return NextResponse.json(insertedItems, { status: 201 });
     } finally {
       client.release();
     }

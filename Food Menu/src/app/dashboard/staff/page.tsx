@@ -138,7 +138,12 @@ export default function StaffDashboard() {
   };
 
   const handleSelection = (day, itemId) => {
-    setSelections(prev => ({ ...prev, [day]: itemId }));
+    console.log(`Selection made: Day - ${day}, Item ID - ${itemId}`);
+    setSelections(prev => {
+      const updatedSelections = { ...prev, [day]: itemId };
+      console.log('Updated selections:', updatedSelections);
+      return updatedSelections;
+    });
   };
 
   const handleSubmitSelections = async () => {
@@ -208,7 +213,7 @@ export default function StaffDashboard() {
         ) : !activeMenu ? (
           <div className="bg-gray-50 border border-gray-200 rounded-lg p-6 sm:p-12 text-center">
             <h2 className="text-base sm:text-lg font-semibold text-gray-900 mb-2">No Active Menu</h2>
-            <p className="text-gray-600 text-xs sm:text-sm">No menu available for selection. Check back later.</p>
+            <p className="text-gray-600 text-xs sm:text-sm mt-1">No menu available for selection. Check back later.</p>
           </div>
         ) : (
           <div>
