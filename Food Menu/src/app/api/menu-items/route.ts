@@ -19,6 +19,8 @@ export async function GET(request: Request) {
         'SELECT id, menu_id, name, description, day, created_at FROM menu_items WHERE menu_id = $1 ORDER BY day, id',
         [menuId]
       );
+      console.log('Fetching menu items for menuId:', menuId);
+      console.log('Query Result:', result.rows);
       return NextResponse.json(result.rows, { status: 200 });
     } finally {
       client.release();
@@ -35,8 +37,10 @@ export async function GET(request: Request) {
 export async function POST(request: Request) {
   try {
     const { menu_id, items } = await request.json();
+    console.log('Received payload:', { menu_id, items });
 
     if (!menu_id || !items || !Array.isArray(items) || items.length === 0) {
+      console.error('Validation failed: Missing menu_id or items, or items is not a non-empty array.');
       return NextResponse.json(
         { message: 'Menu ID and items are required, and items must be a non-empty array.' },
         { status: 400 }
@@ -49,6 +53,7 @@ export async function POST(request: Request) {
       for (const item of items) {
         const { name, description, day } = item;
         if (!name || !day) {
+          console.error('Validation failed for item:', item);
           return NextResponse.json(
             { message: 'Each item must have a name and day.' },
             { status: 400 }
@@ -59,10 +64,17 @@ export async function POST(request: Request) {
           'INSERT INTO menu_items (menu_id, name, description, day) VALUES ($1, $2, $3, $4) RETURNING *',
           [menu_id, name, description || null, day]
         );
+        console.log('Inserted item:', result.rows[0]);
         insertedItems.push(result.rows[0]);
       }
 
       return NextResponse.json(insertedItems, { status: 201 });
+    } catch (error) {
+      console.error('Database error:', error);
+      return NextResponse.json(
+        { message: 'An error occurred during menu item creation.' },
+        { status: 500 }
+      );
     } finally {
       client.release();
     }

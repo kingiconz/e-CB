@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import NavHeader from "@/components/NavHeader";
 import EditMenuModal from "@/components/EditMenuModal";
+import { Menu } from "@/lib/data";
 
 interface EditMenuPageProps {
   params: {
@@ -11,13 +12,25 @@ interface EditMenuPageProps {
 }
 
 export default function EditMenuPage({ params }: EditMenuPageProps) {
-  const [menu, setMenu] = useState({
-    id: params.menuId,
-    weekRange: "Week of January 12, 2026",
-    isActive: true,
-  });
+  const [menu, setMenu] = useState<Menu | null>(null);
 
-  const handleSave = (updatedMenu: any) => {
+  // Fetch menu details on mount
+  useEffect(() => {
+    const fetchMenu = async () => {
+      try {
+        const res = await fetch(`/api/menus/${params.menuId}`);
+        if (!res.ok) throw new Error("Failed to fetch menu");
+        const data: Menu = await res.json();
+        setMenu(data);
+      } catch (err) {
+        console.error(err);
+      }
+    };
+
+    fetchMenu();
+  }, [params.menuId]);
+
+  const handleSave = (updatedMenu: Menu) => {
     setMenu(updatedMenu);
     alert("Menu updated successfully!");
   };
@@ -26,10 +39,13 @@ export default function EditMenuPage({ params }: EditMenuPageProps) {
     alert("Modal closed.");
   };
 
-  useEffect(() => {
-    // Fetch menu details if needed
-    // Example: fetch(`/api/menus/${params.menuId}`).then(...)
-  }, [params.menuId]);
+  if (!menu) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <p>Loading menu...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-50 pt-20">

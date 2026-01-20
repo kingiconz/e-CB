@@ -25,14 +25,17 @@ export default function Home() {
   }, [images.length]);
 
   const handleStartSelecting = () => {
+    console.log('User object:', user);
     if (user) {
+      console.log('User role:', user.role);
       if (user.role === 'staff') {
         router.push('/dashboard/staff');
       } else {
-        router.push('/dashboard/student');
+        router.push('/login');
       }
     } else {
-      router.push('/login');
+      console.log('No user found, redirecting to login');
+      router.push('/signup');
     }
   };
 

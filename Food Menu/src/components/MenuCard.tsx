@@ -1,10 +1,10 @@
-import { MenuItem } from '@/lib/data';
+import { MenuItem, Day } from '@/lib/data';
 
 type MenuCardProps = {
-  day: string;
+  day: Day;
   items: MenuItem[];
-  onSelection: (day: string, itemId: string) => void;
-  selectedItem?: string;
+  onSelection: (day: Day, itemId: number) => void; // use number
+  selectedItem?: number;
 };
 
 export default function MenuCard({ day, items, onSelection, selectedItem }: MenuCardProps) {
@@ -16,14 +16,14 @@ export default function MenuCard({ day, items, onSelection, selectedItem }: Menu
           <div key={item.id} className="flex items-center">
             <input
               type="radio"
-              id={item.id}
+              id={`item-${item.id}`} // HTML id must be string
               name={day}
               value={item.id}
               className="mr-2"
-              onChange={() => onSelection(day, item.id)}
+              onChange={() => onSelection(day, item.id)} // pass number
               checked={selectedItem === item.id}
             />
-            <label htmlFor={item.id}>{item.food_name}</label>
+            <label htmlFor={`item-${item.id}`}>{item.name}</label>
           </div>
         ))}
       </div>
