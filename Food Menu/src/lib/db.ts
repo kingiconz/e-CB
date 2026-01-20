@@ -1,21 +1,12 @@
-import { Pool } from "pg";
+import pkg from 'pg';
+const { Pool } = pkg;
 
-declare global {
-  // eslint-disable-next-line no-var
-  var dbPool: Pool | undefined;
-}
-
-const pool =
-  global.dbPool ??
-  new Pool({
-    connectionString: process.env.DATABASE_URL,
-    ssl: {
-      rejectUnauthorized: false,
-    },
-  });
-
-if (process.env.NODE_ENV !== "production") {
-  global.dbPool = pool;
-}
+const pool = new Pool({
+  user: process.env.PGUSER,
+  host: process.env.PGHOST,
+  database: process.env.PGDATABASE,
+  password: process.env.PGPASSWORD,
+  port: Number(process.env.PGPORT),
+});
 
 export default pool;
