@@ -25,3 +25,6 @@ CREATE TABLE selections (
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     UNIQUE(user_id, selection_date)
 );
+
+-- Add is_active column to menus table
+ALTER TABLE menus ADD COLUMN is_active BOOLEAN DEFAULT TRUE;
