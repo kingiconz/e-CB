@@ -134,6 +134,16 @@ export default function OverviewPage() {
         </button>
       </div>
 
+      {/* Tabs Section */}
+      <div className="tabs-spacing">
+        <div className="flex justify-between items-center">
+          <button className="text-blue-600">Overview</button>
+          <button className="text-blue-600">Menu</button>
+          <button className="text-blue-600">Selections</button>
+          <button className="text-blue-600">Manage</button>
+        </div>
+      </div>
+
       {/* Stats Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard value={data?.totalStaff || 0} label="Total Staff" />
