@@ -1,3 +1,5 @@
+export const runtime = 'nodejs';
+export const dynamic = 'force-dynamic';
 import { NextResponse } from 'next/server';
 import pool from '@/lib/db';
 
@@ -12,17 +14,12 @@ export async function POST(request: Request) {
       );
     }
 
-    const client = await pool.connect();
-    try {
-      const result = await client.query(
-        'INSERT INTO menus (week_start, deadline) VALUES ($1, $2) RETURNING *',
-        [week_start, deadline]
-      );
-      const newMenu = result.rows[0];
-      return NextResponse.json(newMenu, { status: 201 });
-    } finally {
-      client.release();
-    }
+    const result = await pool.query(
+      'INSERT INTO menus (week_start, deadline) VALUES ($1, $2) RETURNING *',
+      [week_start, deadline]
+    );
+
+    return NextResponse.json(result.rows[0], { status: 201 });
   } catch (error) {
     console.error('Menu creation error:', error);
     return NextResponse.json(
