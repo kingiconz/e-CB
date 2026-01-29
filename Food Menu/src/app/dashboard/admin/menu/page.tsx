@@ -84,7 +84,7 @@ export default function MenuPage() {
       <div className="flex items-center justify-center py-12">
         <div className="text-center">
           <div className="inline-block animate-spin rounded-full h-10 w-10 border-2 border-blue-200 border-t-blue-600 mb-3"></div>
-          <p className="text-gray-600 font-medium">Loading menus...</p>
+          <p className="text-gray-600 font-medium">Loading menu...</p>
         </div>
       </div>
     );
@@ -103,7 +103,7 @@ export default function MenuPage() {
     return (
       <div className="bg-gray-50 border border-dashed border-gray-300 rounded-lg p-12 text-center">
         <Calendar className="w-12 h-12 text-gray-400 mx-auto mb-3" />
-        <p className="text-gray-600 font-medium mb-1">No menus created yet</p>
+        <p className="text-gray-600 font-medium mb-1">No menu created yet</p>
         <p className="text-gray-500 text-sm">Go to Manage tab to create your first menu</p>
       </div>
     );
@@ -114,8 +114,8 @@ export default function MenuPage() {
       <div className="max-w-7xl mx-auto">
         {/* Header Section */}
         <div className="mb-6 sm:mb-8">
-          <h1 className="text-xl sm:text-2xl font-semibold text-gray-900">Weekly Menus</h1>
-          <p className="text-gray-600 text-xs sm:text-sm mt-1">Review all menus and their daily items</p>
+          <h1 className="text-xl sm:text-2xl font-semibold text-gray-900">Weekly Menu</h1>
+          <p className="text-gray-600 text-xs sm:text-sm mt-1">Review all menu and their daily items</p>
         </div>
 
         {/* Menus */}

@@ -4,32 +4,37 @@ export const dynamic = 'force-dynamic';
 import { NextResponse } from 'next/server';
 import pool from '@/lib/db';
 import jwt from 'jsonwebtoken';
+import bcrypt from 'bcrypt';
 
 export async function POST(request: Request) {
   try {
-    const { username } = await request.json();
+    const { username, password } = await request.json();
 
-    if (!username) {
+    if (!username || !password) {
       return NextResponse.json(
-        { message: 'Username is required.' },
+        { message: 'Username and password are required.' },
         { status: 400 }
       );
     }
 
     const client = await pool.connect();
     try {
+      const staffDirResult = await client.query('SELECT * FROM staff_directory WHERE full_name = $1', [username]);
+      if (staffDirResult.rows.length === 0) {
+        return NextResponse.json({ message: 'You are not eligible to sign up.' }, { status: 403 });
+      }
+
       const existingUser = await client.query('SELECT * FROM users WHERE username = $1', [username]);
       if (existingUser.rows.length > 0) {
         return NextResponse.json({ message: 'Username already exists.' }, { status: 409 });
       }
 
       const role = 'staff';
-      // Placeholder password value since staff only need username
-      const placeholderPassword = 'N/A';
+      const hashedPassword = await bcrypt.hash(password, 10);
 
       const result = await client.query(
         'INSERT INTO users (username, password, role) VALUES ($1, $2, $3) RETURNING id, username, role',
-        [username, placeholderPassword, role]
+        [username, hashedPassword, role]
       );
       const newUser = result.rows[0];
 

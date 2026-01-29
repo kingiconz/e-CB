@@ -88,7 +88,7 @@ export default function Home() {
                 <span className="text-blue-500 italic">Elevated.</span>
               </h1>
               <p className="mt-3 md:mt-4 text-sm sm:text-base md:text-lg text-gray-600 max-w-xl mx-auto lg:mx-0">
-                Experience our curated weekly menus designed for the modern
+                Experience our curated weekly menu designed for the modern
                 workplace. Select your daily meals with ease and enjoy gourmet
                 dining right at the office.
               </p>
@@ -119,6 +119,11 @@ export default function Home() {
                   <p className="text-xl sm:text-2xl md:text-3xl font-bold">4.9/5</p>
                   <p className="text-xs sm:text-sm text-gray-600 mt-1">Staff Satisfaction</p>
                 </div>
+              </div>
+              <div className="mt-4 text-center lg:text-left">
+                <p className="text-red-600 text-xs italic">
+                  Disclaimer: All food images shown do not depict the exact food to be served.
+                </p>
               </div>
             </div>
           </div>

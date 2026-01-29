@@ -44,7 +44,7 @@ const NavHeader = () => {
               height={70}
             />
             <span className="text-2xl font-bold text-blue-500 whitespace-nowrap" style={{ fontFamily: "var(--font-montserrat)" }}>
-              Meal Planner
+              Staff Meal Planner
             </span>
           </button>
           <div className="sm:hidden">

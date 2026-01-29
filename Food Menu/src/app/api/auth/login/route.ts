@@ -4,26 +4,32 @@ export const runtime = 'nodejs';
 import { NextResponse } from 'next/server';
 import pool from '@/lib/db';
 import jwt from 'jsonwebtoken';
+import bcrypt from 'bcrypt';
 
 export async function POST(request: Request) {
   try {
-    const { username } = await request.json();
+    const { username, password } = await request.json();
 
-    if (!username) {
+    if (!username || !password) {
       return NextResponse.json(
-        { message: 'Username is required.' },
+        { message: 'Username and password are required.' },
         { status: 400 }
       );
     }
 
     const client = await pool.connect();
     try {
-      // Staff login - only username required
       const result = await client.query('SELECT * FROM users WHERE username = $1 AND role = $2', [username, 'staff']);
       const user = result.rows[0];
 
       if (!user) {
         return NextResponse.json({ message: 'Staff user not found.' }, { status: 401 });
+      }
+
+      const passwordMatch = await bcrypt.compare(password, user.password);
+
+      if (!passwordMatch) {
+        return NextResponse.json({ message: 'Invalid credentials.' }, { status: 401 });
       }
 
       const token = jwt.sign(

@@ -46,7 +46,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       <NavHeader />
       
       {/* Fixed Tabs */}
-      <div className="sticky top-16 sm:top-20 z-40 bg-white border-b border-gray-200 shadow-sm">
+      <div className="sticky top-16 sm:top-20 z-40 bg-white border-b border-gray-200 shadow-sm mt-5">
         <div className="w-full px-2 sm:px-4 md:px-6 lg:px-8">
           <div className="max-w-6xl mx-auto">
             <div className="flex overflow-x-auto">

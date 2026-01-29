@@ -12,7 +12,14 @@ export async function GET(req: Request) {
     const { searchParams } = new URL(req.url);
     const menuId = searchParams.get('menuId'); // optional / future use
 
-    // 1️⃣ Get all staff users
+    // 1️⃣ Get the active menu's week_start date
+    const activeMenuQuery = `
+      SELECT week_start FROM menus WHERE is_active = true LIMIT 1
+    `;
+    const activeMenuResult = await pool.query(activeMenuQuery);
+    const week_start = activeMenuResult.rows[0]?.week_start || null;
+
+    // 2️⃣ Get all staff users
     const allUsersQuery = `
       SELECT u.id, u.username
       FROM users u
@@ -22,7 +29,7 @@ export async function GET(req: Request) {
 
     const allUsersResult = await pool.query(allUsersQuery);
 
-    // 2️⃣ Get selections for active menus (or users with no selections)
+    // 3️⃣ Get selections for active menus (or users with no selections)
     const selectionsQuery = `
       SELECT 
         u.id AS user_id,
@@ -40,7 +47,7 @@ export async function GET(req: Request) {
 
     const selectionsResult = await pool.query(selectionsQuery);
 
-    // 3️⃣ Group selections by username
+    // 4️⃣ Group selections by username
     const selectionsMap: Record<
       string,
       {
@@ -65,7 +72,7 @@ export async function GET(req: Request) {
       }
     });
 
-    // 4️⃣ Ensure every staff member appears in the response
+    // 5️⃣ Ensure every staff member appears in the response
     const days = [
       'Monday',
       'Tuesday',
@@ -100,7 +107,7 @@ export async function GET(req: Request) {
       }
     );
 
-    return Response.json(staffSelections);
+    return Response.json({ staffSelections, week_start });
   } catch (error) {
     console.error('Error fetching selections:', error);
     return Response.json(

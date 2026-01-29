@@ -8,9 +8,15 @@ interface StaffSelectionData {
   username: string;
   selections: (string | null)[];
   progress: string;
+  monthlySelections: number;
 }
 
-const StaffRow = ({ username, selections, progress }: StaffSelectionData) => (
+interface ApiResponse {
+  staffSelections: StaffSelectionData[];
+  week_start: string | null;
+}
+
+const StaffRow = ({ username, selections, progress, monthlySelections }: StaffSelectionData) => (
   <tr className="border-b hover:bg-gray-50">
     <td className="py-3 px-6">
       <p className="text-sm font-medium text-gray-900">{username}</p>
@@ -33,11 +39,15 @@ const StaffRow = ({ username, selections, progress }: StaffSelectionData) => (
         {progress}
       </span>
     </td>
+    <td className="py-3 px-6 text-center">
+      <span className="text-sm text-gray-700">{monthlySelections}</span>
+    </td>
   </tr>
 );
 
 export default function SelectionsPage() {
   const [staffData, setStaffData] = useState<StaffSelectionData[]>([]);
+  const [weekStart, setWeekStart] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
 
@@ -50,8 +60,9 @@ export default function SelectionsPage() {
       setIsLoading(true);
       const response = await fetch('/api/admin/selections');
       if (!response.ok) throw new Error('Failed to fetch selections');
-      const data = await response.json();
-      setStaffData(data);
+      const data: ApiResponse = await response.json();
+      setStaffData(data.staffSelections || []);
+      setWeekStart(data.week_start);
     } catch (err: any) {
       setError(err.message || 'Failed to load selections');
       setStaffData([]);
@@ -60,27 +71,45 @@ export default function SelectionsPage() {
     }
   };
 
+  const getDayDate = (dayIndex: number): string => {
+    if (!weekStart) return '';
+    const startDate = new Date(weekStart);
+    startDate.setDate(startDate.getDate() + dayIndex);
+    return ` ${startDate.getDate().toString().padStart(2, '0')}-${(startDate.getMonth() + 1).toString().padStart(2, '0')}`;
+  };
+
   const handleExportCSV = () => {
-    const headers = ['Username', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Progress'];
+    const daysOfWeek = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
+    const headers = [
+      'Staff Member',
+      ...daysOfWeek.map((day, index) => `${day}${getDayDate(index)}`),
+      'Weekly Selections'
+    ];
+
     const rows = staffData.map(staff => [
       staff.username,
-      ...staff.selections.map(s => s || ''),
+      ...(staff.selections.map(s => s || 'No Selection')),
       staff.progress
     ]);
 
     const csvContent = [
       headers.join(','),
-      ...rows.map(row => row.map(cell => `"${cell}"`).join(','))
+      ...rows.map(row => row.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(','))
     ].join('\n');
 
-    const blob = new Blob([csvContent], { type: 'text/csv' });
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement('a');
+    a.style.display = 'none';
     a.href = url;
     a.download = `staff-selections-${new Date().toISOString().split('T')[0]}.csv`;
+    document.body.appendChild(a);
     a.click();
     window.URL.revokeObjectURL(url);
+    document.body.removeChild(a);
   };
+
+  const daysOfWeek = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
 
   return (
     <div className="space-y-6">
@@ -124,12 +153,14 @@ export default function SelectionsPage() {
                 <thead>
                   <tr className="bg-gray-50 border-b border-gray-200">
                     <th className="text-left font-semibold py-3 px-6 text-gray-700 text-xs uppercase tracking-wide">Staff Member</th>
-                    <th className="text-center font-semibold py-3 px-6 text-gray-700 text-xs uppercase tracking-wide">Monday</th>
-                    <th className="text-center font-semibold py-3 px-6 text-gray-700 text-xs uppercase tracking-wide">Tuesday</th>
-                    <th className="text-center font-semibold py-3 px-6 text-gray-700 text-xs uppercase tracking-wide">Wednesday</th>
-                    <th className="text-center font-semibold py-3 px-6 text-gray-700 text-xs uppercase tracking-wide">Thursday</th>
-                    <th className="text-center font-semibold py-3 px-6 text-gray-700 text-xs uppercase tracking-wide">Friday</th>
-                    <th className="text-center font-semibold py-3 px-6 text-gray-700 text-xs uppercase tracking-wide">Progress</th>
+                    {daysOfWeek.map((day, index) => (
+                      <th key={day} className="text-center font-semibold py-3 px-6 text-gray-700 text-xs uppercase tracking-wide">
+                        {day}
+                        {weekStart && <span className="block font-normal text-gray-500">{getDayDate(index)}</span>}
+                      </th>
+                    ))}
+                    <th className="text-center font-semibold py-3 px-6 text-gray-700 text-xs uppercase tracking-wide">Weekly Selections</th>
+                    <th className="text-center font-semibold py-3 px-6 text-gray-700 text-xs uppercase tracking-wide">Monthly Selections</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-200">

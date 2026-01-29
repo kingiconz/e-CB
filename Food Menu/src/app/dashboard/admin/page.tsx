@@ -95,8 +95,8 @@ export default function AdminDashboard() {
       <div className="space-y-6">
         <div className="flex justify-between items-center">
           <div>
-            <h1 className="text-2xl font-semibold text-gray-900">Manage Menus</h1>
-            <p className="text-gray-600 text-sm mt-1">Create, edit, or delete menus</p>
+            <h1 className="text-2xl font-semibold text-gray-900">Manage Menu</h1>
+            <p className="text-gray-600 text-sm mt-1">Create, edit, or delete menu</p>
           </div>
           <button
             onClick={() => setShowMenuManager(!showMenuManager)}
@@ -116,12 +116,12 @@ export default function AdminDashboard() {
           <div className="flex items-center justify-center py-12">
             <div className="text-center">
               <div className="inline-block animate-spin rounded-full h-8 w-8 border-2 border-gray-200 border-t-gray-600 mb-3"></div>
-              <p className="text-gray-600 text-sm">Loading menus...</p>
+              <p className="text-gray-600 text-sm">Loading menu...</p>
             </div>
           </div>
         ) : menus.length === 0 ? (
           <div className="bg-gray-50 rounded-lg border border-gray-200 p-12 text-center">
-            <p className="text-gray-700 font-medium">No menus yet</p>
+            <p className="text-gray-700 font-medium">No menu yet</p>
             <p className="text-gray-600 text-sm mt-1">Click "New Menu" to create your first menu</p>
           </div>
         ) : (

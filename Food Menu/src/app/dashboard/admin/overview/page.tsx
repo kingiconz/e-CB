@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from 'react';
-import { Download } from 'lucide-react';
+import { Download, Star } from 'lucide-react';
 
 interface OverviewData {
   totalStaff: number;
@@ -16,6 +16,15 @@ interface OverviewData {
     progress: string;
   }>;
   maxPossibleSelections: number;
+}
+
+interface MenuRating {
+  id: number;
+  rating: number;
+  comment: string;
+  created_at: string;
+  username: string;
+  week_start_date: string;
 }
 
 const StatCard = ({ value, label }: { value: number; label: string }) => (
@@ -55,9 +64,13 @@ export default function OverviewPage() {
   const [data, setData] = useState<OverviewData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
+  const [menuRatings, setMenuRatings] = useState<MenuRating[]>([]);
+  const [menuRatingsLoading, setMenuRatingsLoading] = useState(true);
+  const [menuRatingsError, setMenuRatingsError] = useState('');
 
   useEffect(() => {
     fetchOverviewData();
+    fetchMenuRatings();
   }, []);
 
   const fetchOverviewData = async () => {
@@ -71,6 +84,25 @@ export default function OverviewPage() {
       setError(err.message || 'Failed to load overview data');
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const fetchMenuRatings = async () => {
+    try {
+      setMenuRatingsLoading(true);
+      setMenuRatingsError('');
+      const response = await fetch('/api/admin/menu-ratings');
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to fetch menu ratings');
+      }
+      const result = await response.json();
+      setMenuRatings(result);
+    } catch (err: any) {
+      console.error('Failed to load menu ratings:', err);
+      setMenuRatingsError(err.message || 'An unexpected error occurred.');
+    } finally {
+      setMenuRatingsLoading(false);
     }
   };
 
@@ -134,15 +166,7 @@ export default function OverviewPage() {
         </button>
       </div>
 
-      {/* Tabs Section */}
-      <div className="tabs-spacing">
-        <div className="flex justify-between items-center">
-          <button className="text-blue-600">Overview</button>
-          <button className="text-blue-600">Menu</button>
-          <button className="text-blue-600">Selections</button>
-          <button className="text-blue-600">Manage</button>
-        </div>
-      </div>
+      
 
       {/* Stats Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -152,47 +176,65 @@ export default function OverviewPage() {
         <StatCard value={data?.completeProfiles || 0} label="Complete Profiles" />
       </div>
 
-      {/* Progress Section */}
-      <div className="bg-white border border-gray-200 rounded-lg p-6">
-        <h2 className="text-lg font-semibold text-gray-900 mb-1">Selection Completion</h2>
-        <p className="text-gray-600 text-sm mb-4">Overall progress towards target completion</p>
-        <div className="w-full bg-gray-200 rounded-full h-2">
-          <div 
-            className="bg-blue-600 h-2 rounded-full transition-all duration-500" 
-            style={{ width: `${data?.progressPercentage || 0}%` }}
-          ></div>
-        </div>
-        <p className="text-sm text-gray-600 mt-3">
-          {data?.totalSelections || 0} of {data?.maxPossibleSelections || 0} selections ({data?.progressPercentage || 0}%)
-        </p>
-      </div>
 
-      {/* Staff Selections Table */}
+
+    
+
+      {/* Menu Ratings Section */}
       <div>
-        <h2 className="text-lg font-semibold text-gray-900 mb-4">Staff Selections</h2>
+        <h2 className="text-lg font-semibold text-gray-900 mb-4">Menu Feedback</h2>
         <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
                 <tr className="bg-gray-50 border-b border-gray-200">
                   <th className="text-left font-semibold py-3 px-6 text-gray-700 text-xs uppercase tracking-wide">Staff Member</th>
-                  <th className="text-center font-semibold py-3 px-6 text-gray-700 text-xs uppercase tracking-wide">Monday</th>
-                  <th className="text-center font-semibold py-3 px-6 text-gray-700 text-xs uppercase tracking-wide">Tuesday</th>
-                  <th className="text-center font-semibold py-3 px-6 text-gray-700 text-xs uppercase tracking-wide">Wednesday</th>
-                  <th className="text-center font-semibold py-3 px-6 text-gray-700 text-xs uppercase tracking-wide">Thursday</th>
-                  <th className="text-center font-semibold py-3 px-6 text-gray-700 text-xs uppercase tracking-wide">Friday</th>
-                  <th className="text-center font-semibold py-3 px-6 text-gray-700 text-xs uppercase tracking-wide">Progress</th>
+                  <th className="text-left font-semibold py-3 px-6 text-gray-700 text-xs uppercase tracking-wide">Menu Week</th>
+                  <th className="text-center font-semibold py-3 px-6 text-gray-700 text-xs uppercase tracking-wide">Rating</th>
+                  <th className="text-left font-semibold py-3 px-6 text-gray-700 text-xs uppercase tracking-wide">Comment</th>
+                  <th className="text-left font-semibold py-3 px-6 text-gray-700 text-xs uppercase tracking-wide">Date</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200">
-                {data?.staffSelections && data.staffSelections.length > 0 ? (
-                  data.staffSelections.map((staff, index) => (
-                    <StaffRow key={index} {...staff} />
+                {menuRatingsLoading ? (
+                  <tr>
+                    <td colSpan={5} className="text-center py-8 text-gray-500 text-sm">
+                      Loading feedback...
+                    </td>
+                  </tr>
+                ) : menuRatingsError ? (
+                  <tr>
+                    <td colSpan={5} className="text-center py-8 text-red-600 text-sm">
+                      Error: {menuRatingsError}
+                    </td>
+                  </tr>
+                ) : menuRatings.length > 0 ? (
+                  menuRatings.map((rating) => (
+                    <tr key={rating.id} className="hover:bg-gray-50">
+                      <td className="py-3 px-6 text-sm text-gray-900">{rating.username || 'Unknown User'}</td>
+                      <td className="py-3 px-6 text-sm text-gray-700">
+                        {rating.week_start_date ? new Date(rating.week_start_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : 'N/A'}
+                      </td>
+                      <td className="py-3 px-6 text-center">
+                        <div className="flex items-center justify-center">
+                          {[...Array(rating.rating)].map((_, i) => (
+                            <Star key={i} className="w-4 h-4 text-yellow-400 fill-current" />
+                          ))}
+                          {[...Array(5 - rating.rating)].map((_, i) => (
+                            <Star key={i} className="w-4 h-4 text-gray-300" />
+                          ))}
+                        </div>
+                      </td>
+                      <td className="py-3 px-6 text-sm text-gray-700">{rating.comment || '—'}</td>
+                      <td className="py-3 px-6 text-sm text-gray-700">
+                        {new Date(rating.created_at).toLocaleDateString()}
+                      </td>
+                    </tr>
                   ))
                 ) : (
                   <tr>
-                    <td colSpan={7} className="text-center py-8 text-gray-500 text-sm">
-                      No staff members found
+                    <td colSpan={5} className="text-center py-8 text-gray-500 text-sm">
+                      No menu feedback found.
                     </td>
                   </tr>
                 )}

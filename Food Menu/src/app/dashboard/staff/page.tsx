@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import NavHeader from "@/components/NavHeader";
 import { Menu, MenuItem, FoodSelection, Day } from "@/lib/data";
-import { CheckCircle2, Circle } from "lucide-react";
+import { CheckCircle2, Circle, Star } from "lucide-react";
 
 interface PairedMeal {
   mealId: number;
@@ -70,7 +70,6 @@ export default function StaffDashboard() {
   const { user } = useAuth();
   const [activeMenu, setActiveMenu] = useState<Menu | null>(null);
 
-  // Initialize with all days as empty arrays
   const [menuItems, setMenuItems] = useState<Record<Day, MenuItem[]>>(() =>
     daysOfWeek.reduce((acc, day) => {
       acc[day] = [];
@@ -98,7 +97,10 @@ export default function StaffDashboard() {
   const [submitMessage, setSubmitMessage] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Fetch active menu and selections
+  const [menuRating, setMenuRating] = useState(0);
+  const [menuComment, setMenuComment] = useState("");
+  const [ratingSubmitMessage, setRatingSubmitMessage] = useState("");
+
   useEffect(() => {
     fetchActiveMenu();
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -118,7 +120,6 @@ export default function StaffDashboard() {
       const menu = menus[0];
       setActiveMenu(menu);
 
-      // Fetch menu items
       const itemsRes = await fetch(`/api/menu-items?menuId=${menu.id}`);
       if (itemsRes.ok) {
         const items: MenuItem[] = await itemsRes.json();
@@ -170,17 +171,28 @@ export default function StaffDashboard() {
     return pairs;
   };
 
+  const getDayDate = (day: Day) => {
+    if (!activeMenu) return '';
+    const weekStartDate = new Date(activeMenu.week_start);
+    const dayIndex = daysOfWeek.indexOf(day);
+    const date = new Date(weekStartDate);
+    date.setDate(weekStartDate.getDate() + dayIndex);
+    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+  };
+
   const renderMenu = () => {
     return (
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-2 sm:gap-4">
         {daysOfWeek.map((day) => (
           <div key={day} className="bg-white border border-gray-200 rounded-lg overflow-hidden flex flex-col">
             <div className="bg-gray-100 px-3 sm:px-4 py-2 sm:py-3 border-b border-gray-200">
-              <h3 className="font-semibold text-gray-900 text-xs sm:text-sm">{day}</h3>
+              <h3 className="font-semibold text-gray-900 text-xs sm:text-sm">
+                {day} - {getDayDate(day)}
+              </h3>
             </div>
             <div className="p-2 sm:p-4 space-y-1 sm:space-y-2 flex-1">
               {menuItems[day] && menuItems[day].length > 0 ? (
-                getPairedMeals(menuItems[day]).map((meal, mealIndex) => (
+                getPairedMeals(menuItems[day]).map((meal) => (
                   <div
                     key={`${meal.mainCourse.id}-${meal.dessert?.id || 'none'}`}
                     className={`bg-gray-50 rounded p-1.5 sm:p-2 border border-gray-200 hover:bg-blue-50 hover:border-blue-200 transition-all cursor-pointer ${
@@ -231,33 +243,6 @@ export default function StaffDashboard() {
     );
   };
 
-  const renderDayCards = () => {
-    return daysOfWeek.map((day) => {
-      const pairedMeals = getPairedMeals(menuItems[day] || []);
-      return (
-        <div key={day} className="space-y-4">
-          <h3 className="text-lg font-semibold text-gray-900">{day}</h3>
-          {pairedMeals.map((meal) => (
-            <div
-              key={meal.mainCourse.id}
-              onClick={() => handleSelection(day, meal.mainCourse.id)}
-              className="cursor-pointer"
-            >
-              <DaySelectionCard
-                day={day}
-                mainCourseName={meal.mainCourse.name}
-                mainCourseDescription={meal.mainCourse.description ?? undefined}
-                dessertName={meal.dessert?.name || undefined}
-                dessertDescription={meal.dessert?.description || undefined}
-                isSelected={selections[day] === meal.mainCourse.id}
-              />
-            </div>
-          ))}
-        </div>
-      );
-    });
-  };
-
   const handleSelection = (day: Day, itemId: number) => {
     setSelections((prev) => ({ ...prev, [day]: itemId }));
   };
@@ -297,6 +282,42 @@ export default function StaffDashboard() {
     }
   };
 
+  const handleSubmitMenuRating = async () => {
+    if (!user?.id || !activeMenu?.id) {
+      setRatingSubmitMessage("Cannot submit rating. User or menu not identified.");
+      return;
+    }
+    if (menuRating === 0) {
+      setRatingSubmitMessage("Please select a rating before submitting.");
+      return;
+    }
+
+    try {
+      const response = await fetch('/api/menu-ratings', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          menu_id: activeMenu.id,
+          user_id: user.id,
+          rating: menuRating,
+          comment: menuComment,
+        }),
+      });
+
+      if (response.ok) {
+        setRatingSubmitMessage("✓ Thank you for your feedback!");
+        setMenuRating(0);
+        setMenuComment("");
+      } else {
+        const data = await response.json();
+        setRatingSubmitMessage(data.message || "Failed to submit your rating.");
+      }
+    } catch (error) {
+      console.error('Failed to submit menu rating', error);
+      setRatingSubmitMessage("An error occurred while submitting your rating.");
+    }
+  };
+
   return (
     <div className="min-h-screen bg-white pt-16 sm:pt-20">
       <NavHeader />
@@ -326,8 +347,41 @@ export default function StaffDashboard() {
           {renderMenu()}
 
           {submitMessage && (
-            <div className="mt-6 sm:mt-8 bg-gray-50 border border-gray-200 rounded-lg p-4 sm:p-8 text-center">
+            <div className="mt-4 bg-gray-50 border border-gray-200 rounded-lg p-4 text-center">
               <p className="text-sm text-gray-600">{submitMessage}</p>
+            </div>
+          )}
+
+          {activeMenu && (
+            <div className="mt-8 bg-white border border-gray-200 rounded-lg p-6">
+              <h2 className="text-lg font-semibold text-gray-900 mb-4">Rate This Week's Menu</h2>
+              <div className="flex items-center space-x-1">
+                {[1, 2, 3, 4, 5].map((star) => (
+                  <Star
+                    key={star}
+                    className={`w-8 h-8 cursor-pointer ${
+                      menuRating >= star ? 'text-yellow-400 fill-current' : 'text-gray-300'
+                    }`}
+                    onClick={() => setMenuRating(star)}
+                  />
+                ))}
+              </div>
+              <textarea
+                className="w-full mt-4 p-3 border rounded-md text-sm"
+                rows={4}
+                placeholder="Add a comment about the menu for the week..."
+                value={menuComment}
+                onChange={(e) => setMenuComment(e.target.value)}
+              />
+              <button
+                className="mt-4 px-6 py-2 bg-green-600 text-white rounded font-medium hover:bg-green-700 transition-colors"
+                onClick={handleSubmitMenuRating}
+              >
+                Submit Feedback
+              </button>
+              {ratingSubmitMessage && (
+                <p className="text-sm text-gray-600 mt-4">{ratingSubmitMessage}</p>
+              )}
             </div>
           )}
         </div>

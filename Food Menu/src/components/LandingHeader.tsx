@@ -28,7 +28,7 @@ export default function LandingHeader() {
                 className="sm:w-[70px] sm:h-[70px]"
               />
               <span className="text-lg sm:text-2xl font-bold text-blue-500" style={{ fontFamily: "var(--font-montserrat)" }}>
-              Meal Planner
+              Staff Meal Planner
               </span>
             </Link>
           </div>
