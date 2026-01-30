@@ -14,7 +14,7 @@ export default function Home() {
   const router = useRouter();
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
-  const images = ['/food1.jpg', '/food2.jpg', '/food3.jpg', '/food4.jpg', '/food5.jpg'];
+  const images = ['/food1.jpg', '/food2.jpg', '/food3.jpg'];
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -121,7 +121,7 @@ export default function Home() {
               </div>
               <div className="mt-4 text-center lg:text-left">
                 <p className="text-red-600 text-xs italic">
-                  Disclaimer: All food images shown do not depict the exact food to be served.
+                  Disclaimer: Menu images are for illustrative purposes only. Actual food presentation may vary.
                 </p>
               </div>
             </div>
