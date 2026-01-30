@@ -89,8 +89,7 @@ export default function Home() {
               </h1>
               <p className="mt-3 md:mt-4 text-sm sm:text-base md:text-lg text-gray-600 max-w-xl mx-auto lg:mx-0">
                 Experience our curated weekly menu designed for the modern
-                workplace. Select your daily meals with ease and enjoy gourmet
-                dining right at the office.
+                workplace.
               </p>
               <div className="mt-6 md:mt-8 flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-3 md:gap-4 w-full sm:w-auto">
                 <button
