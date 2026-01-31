@@ -156,12 +156,13 @@ export default function Home() {
           {/* ================= TEXT ================= */}
           <div className="w-full lg:w-1/2 text-center lg:text-left">
             <h1 className="text-5xl sm:text-6xl font-extrabold text-gray-900 leading-tight tracking-tight">
-              Freshness <br />
-              <span className="text-blue-500 italic">in every bite</span>
+              Daily Dining <br />
+        
+              <span className="text-blue-500 italic">Elevated</span>
             </h1>
 
             <p className="mt-5 text-lg text-gray-700 max-w-lg mx-auto lg:mx-0">
-              Healthy sashimi tuna bites prepared with premium ingredients — only 110 calories and 13g of protein per serving.
+              Experience our curated weekly menus, designed to delight your taste buds and fuel your day. Select your daily meals with ease and enjoy a delightful culinary journey.
             </p>
 
             <div className="mt-9 flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
