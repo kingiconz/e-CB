@@ -1,130 +1,205 @@
 /* eslint-disable react/no-unescaped-entities */
-
 'use client';
 
 import Link from 'next/link';
 import Image from 'next/image';
-import LandingHeader from '@/components/LandingHeader';
 import { useAuth } from '@/contexts/AuthContext';
 import { useRouter } from 'next/navigation';
 import { useState, useEffect } from 'react';
+import { Menu, X } from 'lucide-react';
 
 export default function Home() {
   const { user } = useAuth();
   const router = useRouter();
-  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [currentImage, setCurrentImage] = useState(0);
+  const [menuOpen, setMenuOpen] = useState(false);
 
-  const images = ['/food1.jpg', '/food2.jpg', '/food3.jpg'];
+  const images = ['/food1.png', '/food2.png', '/food3.png', '/food4.png'];
 
   useEffect(() => {
     const interval = setInterval(() => {
-      setCurrentImageIndex((prevIndex) => (prevIndex + 1) % images.length);
-    }, 5000); // Change image every 5 seconds
-
+      setCurrentImage((prev) => (prev + 1) % images.length);
+    }, 4500);
     return () => clearInterval(interval);
   }, [images.length]);
 
   const handleStartSelecting = () => {
-    console.log('User object:', user);
-    if (user) {
-      console.log('User role:', user.role);
-      if (user.role === 'staff') {
-        router.push('/dashboard/staff');
-      } else {
-        router.push('/login');
-      }
+    if (user?.role === 'staff') {
+      router.push('/dashboard/staff');
     } else {
-      console.log('No user found, redirecting to login');
       router.push('/signup');
     }
   };
 
   return (
-    <div className="bg-[#fdfdfd] min-h-screen">
-      <LandingHeader />
-      <main className="w-full px-3 sm:px-4 md:px-6 lg:px-8 pt-20">
-        <div className="max-w-6xl mx-auto">
-          <div className="flex flex-col lg:flex-row-reverse items-center justify-between gap-8 md:gap-12 py-8 md:py-12">
-            <div className="w-full lg:w-1/2">
-              <div className="relative w-full h-60 sm:h-80 md:h-86 lg:h-96 rounded-lg overflow-hidden shadow-lg group">
-                {images.map((image, index) => (
-                  <div
-                    key={index}
-                    className={`absolute inset-0 transition-opacity duration-1000 ease-in-out ${
-                      index === currentImageIndex ? 'opacity-100' : 'opacity-0'
-                    }`}
-                  >
-                    <Image
-                      src={image}
-                      alt={`Food slideshow ${index + 1}`}
-                      layout="fill"
-                      objectFit="cover"
-                      className="transition-transform duration-300 ease-in-out group-hover:scale-105"
-                    />
-                  </div>
-                ))}
-                
-                {/* Navigation dots */}
-                <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex gap-2 z-10">
-                  {images.map((_, index) => (
-                    <button
+    <div className="relative min-h-screen flex flex-col overflow-hidden">
+
+      {/* ================= BACKGROUND ================= */}
+      <div className="absolute inset-0 -z-30">
+        <Image
+          src="/food-pattern.jpg"
+          alt="Food pattern background"
+          fill
+          className="object-cover opacity-[0.06]"
+          priority
+        />
+      </div>
+
+      {/* Decorative blobs */}
+      <div className="absolute -top-40 -left-40 w-[600px] h-[600px] rounded-full bg-blue-200/40 blur-3xl" />
+      <div className="absolute top-1/3 -right-48 w-[700px] h-[700px] rounded-full bg-indigo-200/40 blur-3xl" />
+      <div className="absolute bottom-[-300px] left-1/4 w-[800px] h-[800px] rounded-full bg-sky-200/30 blur-3xl" />
+
+      {/* ================= HEADER ================= */}
+      <header className="relative z-20 py-5 px-6 flex justify-between items-center backdrop-blur-md bg-white/60">
+        <div className="flex items-center gap-2">
+          <Image src="/favicon.png" alt="Logo" width={50} height={50} />
+          <span
+            className="text-lg sm:text-2xl font-bold text-blue-500 whitespace-nowrap"
+            style={{ fontFamily: 'var(--font-montserrat)' }}
+          >
+            Staff Meal Planner
+          </span>
+        </div>
+
+        {/* Desktop nav */}
+        <nav className="hidden sm:flex gap-4">
+          <Link
+            href="/login"
+            className="px-4 py-2 rounded-lg border border-gray-300 text-gray-800 hover:bg-gray-100 transition"
+          >
+            Sign In
+          </Link>
+          <Link
+            href="/signup"
+            className="px-4 py-2 rounded-lg bg-blue-500 hover:bg-blue-600 text-white shadow-md transition"
+          >
+            Sign Up
+          </Link>
+        </nav>
+
+        {/* Hamburger for mobile */}
+        <button
+          className="sm:hidden p-2 rounded-md text-gray-700 hover:bg-gray-100 transition"
+          onClick={() => setMenuOpen(!menuOpen)}
+        >
+          {menuOpen ? <X size={24} /> : <Menu size={24} />}
+        </button>
+      </header>
+
+      {/* Mobile menu */}
+      {menuOpen && (
+        <div className="sm:hidden absolute top-20 right-6 bg-white/90 backdrop-blur-md rounded-lg shadow-md flex flex-col gap-3 p-4 z-30">
+          <Link href="/login" className="hover:text-blue-500 transition">Sign In</Link>
+          <Link href="/signup" className="hover:text-blue-500 transition">Sign Up</Link>
+        </div>
+      )}
+
+      {/* ================= MAIN ================= */}
+      <main className="relative z-10 flex-1 flex items-center px-4 sm:px-6 lg:px-12">
+        <div className="w-full max-w-6xl mx-auto flex flex-col lg:flex-row-reverse items-center justify-between gap-12">
+
+          {/* ================= SLIDESHOW ================= */}
+          <div className="w-full lg:w-1/2 flex justify-center relative">
+            {/* Ambient glow */}
+            <div className="absolute -right-40 top-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full bg-blue-100/60 blur-3xl animate-pulse" />
+
+            {/* Gradient ring */}
+            <div className="relative rounded-full p-[6px] bg-gradient-to-tr from-blue-500 via-blue-300 to-indigo-400 shadow-[0_30px_80px_rgba(59,130,246,0.35)]">
+
+              {/* Glass shell */}
+              <div className="rounded-full bg-white/60 backdrop-blur-xl p-2 hover:scale-105 transition-transform duration-500">
+
+                {/* ROUND SLIDESHOW */}
+                <div className="relative w-[280px] h-[280px] sm:w-[360px] sm:h-[360px] rounded-full overflow-hidden">
+                  {images.map((img, index) => (
+                    <div
                       key={index}
-                      onClick={() => setCurrentImageIndex(index)}
-                      className={`w-2 h-2 rounded-full transition-all ${
-                        index === currentImageIndex
-                          ? 'bg-white w-6'
-                          : 'bg-gray-400 hover:bg-gray-300'
+                      className={`absolute inset-0 transition-all duration-700 ease-in-out ${
+                        index === currentImage
+                          ? 'opacity-100 scale-105 z-10'
+                          : 'opacity-0 scale-95 z-0'
                       }`}
-                      aria-label={`Go to image ${index + 1}`}
-                    />
+                    >
+                      <Image
+                        src={img}
+                        alt={`Food ${index + 1}`}
+                        fill
+                        className="object-cover"
+                        priority
+                      />
+                    </div>
                   ))}
+
+                  {/* Inner shadow */}
+                  <div className="absolute inset-0 rounded-full bg-gradient-to-t from-black/20 via-transparent to-transparent" />
                 </div>
               </div>
             </div>
-            <div className="w-full lg:w-1/2 text-center lg:text-left">
-              <h1 className="text-2xl sm:text-3xl md:text-5xl lg:text-6xl font-serif font-bold text-gray-800 leading-tight">
-                Daily Dining,
-                <br />
-                <span className="text-blue-500 italic">Elevated.</span>
-              </h1>
-              <p className="mt-3 md:mt-4 text-sm sm:text-base md:text-lg text-gray-600 max-w-xl mx-auto lg:mx-0">
-                Experience our curated weekly menu designed for the modern
-                workplace.
-              </p>
-              <div className="mt-6 md:mt-8 flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-3 md:gap-4 w-full sm:w-auto">
-                <button
-                  onClick={handleStartSelecting}
-                  className="bg-blue-500 text-white px-4 sm:px-6 py-2 sm:py-3 rounded-md font-semibold hover:bg-blue-600 transition w-full sm:w-auto text-sm md:text-base"
-                >
-                  Start Selecting &rarr;
-                </button>
-                <Link
-                  href="/menu"
-                  className="bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold py-2 sm:py-3 px-4 sm:px-6 rounded-md text-sm md:text-base w-full sm:w-auto text-center"
-                >
-                  {`View This Week's Menu`}
-                </Link>
-              </div>
-              <div className="mt-8 md:mt-12 flex justify-center lg:justify-start gap-4 sm:gap-6 md:gap-8 text-gray-800 flex-wrap">
-                <div className="text-center">
-                  <p className="text-xl sm:text-2xl md:text-3xl font-bold">500+</p>
-                  <p className="text-xs sm:text-sm text-gray-600 mt-1">Meals Served Daily</p>
-                </div>
-                <div className="text-center">
-                  <p className="text-xl sm:text-2xl md:text-3xl font-bold">Fresh</p>
-                  <p className="text-xs sm:text-sm text-gray-600 mt-1">Local Ingredients</p>
-                </div>
-                <div className="text-center">
-                  <p className="text-xl sm:text-2xl md:text-3xl font-bold">4.9/5</p>
-                  <p className="text-xs sm:text-sm text-gray-600 mt-1">Staff Satisfaction</p>
-                </div>
-              </div>
-              <div className="mt-4 text-center lg:text-left">
-                <p className="text-red-600 text-xs italic">
-                  Disclaimer: Menu images are for illustrative purposes only. Actual food presentation may vary.
-                </p>
-              </div>
+
+            {/* Slide indicators */}
+            <div className="absolute -bottom-14 left-1/2 -translate-x-1/2 flex gap-3">
+              {images.map((_, index) => (
+                <span
+                  key={index}
+                  onClick={() => setCurrentImage(index)}
+                  className={`h-2.5 rounded-full cursor-pointer transition-all ${
+                    index === currentImage
+                      ? 'w-10 bg-blue-500 shadow-md'
+                      : 'w-2.5 bg-gray-300 hover:bg-gray-400'
+                  }`}
+                />
+              ))}
             </div>
+          </div>
+
+          {/* ================= TEXT ================= */}
+          <div className="w-full lg:w-1/2 text-center lg:text-left">
+            <h1 className="text-5xl sm:text-6xl font-extrabold text-gray-900 leading-tight tracking-tight">
+              Freshness <br />
+              <span className="text-blue-500 italic">in every bite</span>
+            </h1>
+
+            <p className="mt-5 text-lg text-gray-700 max-w-lg mx-auto lg:mx-0">
+              Healthy sashimi tuna bites prepared with premium ingredients — only 110 calories and 13g of protein per serving.
+            </p>
+
+            <div className="mt-9 flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
+              <button
+                onClick={handleStartSelecting}
+                className="bg-blue-500 hover:bg-blue-600 text-white px-7 py-3 rounded-xl font-semibold shadow-lg hover:shadow-xl transition"
+              >
+                Start Selecting →
+              </button>
+
+              <Link
+                href="/menu"
+                className="bg-white/80 backdrop-blur hover:bg-white px-7 py-3 rounded-xl font-semibold text-gray-800 shadow-md hover:shadow-lg transition"
+              >
+                View This Week's Menu
+              </Link>
+            </div>
+
+            {/* Stats */}
+            <div className="mt-12 flex flex-wrap gap-5 justify-center lg:justify-start">
+              {[
+                ['500+', 'Meals Served Daily'],
+                ['Fresh', 'Local Ingredients'],
+                ['4.9/5', 'Staff Satisfaction'],
+              ].map(([value, label]) => (
+                <div
+                  key={label}
+                  className="text-center bg-white/70 backdrop-blur p-4 rounded-xl shadow-sm hover:shadow-md transition"
+                >
+                  <p className="text-3xl font-bold text-gray-900">{value}</p>
+                  <p className="text-sm text-gray-600">{label}</p>
+                </div>
+              ))}
+            </div>
+
+            <p className="mt-6 text-xs italic text-red-400 max-w-lg mx-auto lg:mx-0">
+              Disclaimer: Menu images are for illustrative purposes only. Actual food presentation may vary.
+            </p>
           </div>
         </div>
       </main>
