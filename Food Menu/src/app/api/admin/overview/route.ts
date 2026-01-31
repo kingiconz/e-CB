@@ -1,5 +1,5 @@
 import pool from '@/lib/db';
-
+export const dynamic = 'force-dynamic';
 export async function GET(req: Request) {
   try {
     // Get total staff members
