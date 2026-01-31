@@ -3,6 +3,8 @@
 import { useEffect, useState } from 'react';
 import { Download, Star } from 'lucide-react';
 
+export const dynamic = 'force-dynamic';
+
 interface OverviewData {
   totalStaff: number;
   totalMenuItems: number;
