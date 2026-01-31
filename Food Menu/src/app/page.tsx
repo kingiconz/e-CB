@@ -14,7 +14,7 @@ export default function Home() {
   const [currentImage, setCurrentImage] = useState(0);
   const [menuOpen, setMenuOpen] = useState(false);
 
-  const images = ['/food1.png', '/food2.png', '/food3.png', '/food4.png'];
+  const images = ['/food1.png', '/food2.png', '/food3.png', '/food4.png' ,'/food5.png' , '/food6.png' , '/food7.png'];
 
   useEffect(() => {
     const interval = setInterval(() => {
