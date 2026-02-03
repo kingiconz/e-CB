@@ -2,7 +2,8 @@
 
 import { useEffect, useState } from 'react';
 import { Calendar } from 'lucide-react';
-import { Menu, MenuItem } from '@/types';
+import { Menu } from '@/types';
+import { MenuItem } from '@/lib/data';
 
 export default function MenuPage() {
   const [menus, setMenus] = useState<Menu[]>([]);
