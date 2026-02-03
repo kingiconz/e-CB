@@ -2,26 +2,14 @@
 
 import { useEffect, useState } from 'react';
 import { Calendar } from 'lucide-react';
-
-interface Menu {
-  id: string | number;
-  week_start: string;
-  deadline: string;
-}
-
-interface MenuItem {
-  id: string | number;
-  menu_id: string | number;
-  name: string;
-  description: string | null;
-  day: string;
-}
+import { Menu, MenuItem } from '@/types';
 
 export default function MenuPage() {
   const [menus, setMenus] = useState<Menu[]>([]);
   const [menuItems, setMenuItems] = useState<Record<string, MenuItem[]>>({});
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
+  const [editingItem, setEditingItem] = useState<MenuItem | null>(null);
 
   useEffect(() => {
     fetchMenusAndItems();

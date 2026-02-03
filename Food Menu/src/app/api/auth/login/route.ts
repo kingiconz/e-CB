@@ -1,52 +1,110 @@
 export const runtime = 'nodejs';
 
-
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import pool from '@/lib/db';
-import jwt from 'jsonwebtoken';
 import bcrypt from 'bcrypt';
+import jwt from 'jsonwebtoken';
+import config from '@/lib/config';
 
-export async function POST(request: Request) {
-  try {
-    const { username, password } = await request.json();
+type Attempt = {
+  count: number;
+  lockedUntil: number;
+};
 
-    if (!username || !password) {
-      return NextResponse.json(
-        { message: 'Username and password are required.' },
-        { status: 400 }
-      );
-    }
+const attempts = new Map<string, Attempt>();
+const MAX_ATTEMPTS = 5;
+const LOCKOUT_MS = 15 * 60 * 1000;
 
-    const client = await pool.connect();
-    try {
-      const result = await client.query('SELECT * FROM users WHERE username = $1 AND role = $2', [username, 'staff']);
-      const user = result.rows[0];
-
-      if (!user) {
-        return NextResponse.json({ message: 'Staff user not found.' }, { status: 401 });
-      }
-
-      const passwordMatch = await bcrypt.compare(password, user.password);
-
-      if (!passwordMatch) {
-        return NextResponse.json({ message: 'Invalid credentials.' }, { status: 401 });
-      }
-
-      const token = jwt.sign(
-        { id: user.id, username: user.username, role: user.role },
-        process.env.JWT_SECRET!,
-        { expiresIn: '1h' }
-      );
-
-      return NextResponse.json({ token });
-    } finally {
-      client.release();
-    }
-  } catch (error) {
-    console.error('Login error:', error);
+export async function POST(request: NextRequest) {
+  if (!config.jwtSecret) {
+    console.error('JWT secret missing');
     return NextResponse.json(
-      { message: 'An error occurred during login.' },
+      { message: 'Authentication unavailable' },
       { status: 500 }
     );
   }
+
+  const ip = request.ip ?? 'unknown';
+  const body = await request.json();
+
+  const username = String(body.username || '')
+    .trim()
+    .toLowerCase();
+  const password = String(body.password || '');
+
+  if (!username || !password) {
+    return NextResponse.json(
+      { message: 'Invalid credentials' },
+      { status: 401 }
+    );
+  }
+
+  const key = `${ip}:${username}`;
+  const now = Date.now();
+  const attempt = attempts.get(key);
+
+  if (attempt && attempt.lockedUntil > now) {
+    return NextResponse.json(
+      { message: 'Too many attempts. Try again later.' },
+      { status: 429 }
+    );
+  }
+
+  try {
+    const result = await pool.query(
+      'SELECT id, username, password, role FROM users WHERE username = $1',
+      [username]
+    );
+
+    // Constant-time behavior
+    const user = result.rows[0];
+    const hash = user?.password || '$2b$12$invalidinvalidinvalidinvalidinv';
+
+    const passwordValid = await bcrypt.compare(password, hash);
+
+    if (!user || !passwordValid) {
+      recordFailure(key);
+      return NextResponse.json(
+        { message: 'Invalid credentials' },
+        { status: 401 }
+      );
+    }
+
+    // Successful login
+    attempts.delete(key);
+
+    const token = jwt.sign(
+      {
+        id: user.id,
+        username: user.username,
+        role: user.role,
+      },
+      config.jwtSecret,
+      { expiresIn: '1h' }
+    );
+
+    return NextResponse.json({
+      token,
+    });
+  } catch (error) {
+    console.error('Login failure');
+    return NextResponse.json(
+      { message: 'Authentication failed' },
+      { status: 500 }
+    );
+  }
+}
+
+function recordFailure(key: string) {
+  const now = Date.now();
+  const entry = attempts.get(key) || { count: 0, lockedUntil: 0 };
+
+  entry.count += 1;
+
+  if (entry.count >= MAX_ATTEMPTS) {
+    entry.lockedUntil = now + LOCKOUT_MS;
+    entry.count = 0;
+  }
+
+  attempts.set(key, entry);
 }

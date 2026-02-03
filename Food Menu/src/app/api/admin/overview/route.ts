@@ -30,7 +30,7 @@ export async function GET(req: Request) {
 
     // Get total selections made
     const selectionsCountResult = await pool.query(
-      `SELECT COUNT(*) as count FROM selections WHERE menu_item_id IN (
+      `SELECT COUNT(id) as count FROM selections WHERE menu_item_id IN (
         SELECT id FROM menu_items WHERE menu_id = (
           SELECT id FROM menus WHERE is_active = true LIMIT 1
         )
