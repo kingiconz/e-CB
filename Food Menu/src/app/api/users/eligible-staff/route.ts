@@ -11,7 +11,7 @@ export async function GET() {
       const result = await client.query(`
         SELECT sd.id, sd.full_name as username
         FROM staff_directory sd
-        LEFT JOIN users u ON sd.full_name = u.username
+        LEFT JOIN users u ON LOWER(TRIM(sd.full_name)) = u.username
         WHERE u.id IS NULL
         ORDER BY sd.full_name
       `);

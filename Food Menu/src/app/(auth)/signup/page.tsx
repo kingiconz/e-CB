@@ -21,13 +21,14 @@ export default function SignupPage() {
   const router = useRouter();
   const { login } = useAuth();
 
+  const fetchUsers = async () => {
+    const response = await fetch('/api/users/eligible-staff');
+    const data = await response.json();
+    setUsers(data);
+  };
+
   // Fetch eligible staff names
   useEffect(() => {
-    const fetchUsers = async () => {
-      const response = await fetch('/api/users/eligible-staff');
-      const data = await response.json();
-      setUsers(data);
-    };
     fetchUsers();
   }, []);
 
@@ -71,6 +72,11 @@ export default function SignupPage() {
       setMessage("Signup successful! Redirecting...");
       const { token } = data;
       login(token);
+
+      // Refetch users to remove the signed-up user from the list
+      fetchUsers();
+      setUsername('');
+      setPassword('');
 
       const timer = setTimeout(() => {
         router.push("/dashboard/staff");
