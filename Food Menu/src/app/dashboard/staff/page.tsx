@@ -185,10 +185,18 @@ export default function StaffDashboard() {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-2 sm:gap-4">
         {daysOfWeek.map((day) => (
           <div key={day} className="bg-white border border-gray-200 rounded-lg overflow-hidden flex flex-col">
-            <div className="bg-gray-100 px-3 sm:px-4 py-2 sm:py-3 border-b border-gray-200">
+            <div className="bg-gray-100 px-3 sm:px-4 py-2 sm:py-3 border-b border-gray-200 flex justify-between items-center">
               <h3 className="font-semibold text-gray-900 text-xs sm:text-sm">
                 {day} - {getDayDate(day)}
               </h3>
+              {selections[day] !== 0 && (
+                <button
+                  onClick={() => handleClearSelection(day)}
+                  className="text-xs text-red-600 hover:text-red-800 font-medium"
+                >
+                  Clear
+                </button>
+              )}
             </div>
             <div className="p-2 sm:p-4 space-y-1 sm:space-y-2 flex-1">
               {menuItems[day] && menuItems[day].length > 0 ? (
@@ -245,6 +253,10 @@ export default function StaffDashboard() {
 
   const handleSelection = (day: Day, itemId: number) => {
     setSelections((prev) => ({ ...prev, [day]: itemId }));
+  };
+
+  const handleClearSelection = (day: Day) => {
+    setSelections((prev) => ({ ...prev, [day]: 0 }));
   };
 
   const handleSubmitSelections = async () => {
@@ -335,22 +347,24 @@ export default function StaffDashboard() {
                 </p>
               )}
             </div>
-            <button
-              onClick={handleSubmitSelections}
-              className="bg-blue-600 text-white px-3 sm:px-4 py-2 rounded font-medium hover:bg-blue-700 transition-colors text-xs sm:text-sm w-full sm:w-auto"
-              disabled={isSubmitting}
-            >
-              {isSubmitting ? 'Saving...' : 'Save Selections'}
-            </button>
           </div>
 
           {renderMenu()}
 
-          {submitMessage && (
-            <div className="mt-4 bg-gray-50 border border-gray-200 rounded-lg p-4 text-center">
-              <p className="text-sm text-gray-600">{submitMessage}</p>
-            </div>
-          )}
+          <div className="mt-6 text-center">
+            <button
+              onClick={handleSubmitSelections}
+              className="bg-blue-600 text-white px-6 py-3 rounded font-medium hover:bg-blue-700 transition-colors text-base"
+              disabled={isSubmitting}
+            >
+              {isSubmitting ? 'Saving...' : 'Submit Selections'}
+            </button>
+            {submitMessage && (
+              <div className="mt-4">
+                <p className="text-sm text-gray-600">{submitMessage}</p>
+              </div>
+            )}
+          </div>
 
           {activeMenu && (
             <div className="mt-8 bg-white border border-gray-200 rounded-lg p-6">
@@ -377,7 +391,7 @@ export default function StaffDashboard() {
                 className="mt-4 px-6 py-2 bg-green-600 text-white rounded font-medium hover:bg-green-700 transition-colors"
                 onClick={handleSubmitMenuRating}
               >
-                Submit Feedback
+                Send Feedback
               </button>
               {ratingSubmitMessage && (
                 <p className="text-sm text-gray-600 mt-4">{ratingSubmitMessage}</p>

@@ -54,3 +54,4 @@ export type FoodSelection = {
   day: Day;
   selected_at: string;
 };
+
